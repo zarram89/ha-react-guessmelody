@@ -1,27 +1,28 @@
 import {useState, FormEvent, ChangeEvent} from 'react';
 import Logo from '../../components/logo/logo';
-import AudioPlayer from '../../components/audio-player/audio-player';
 import {QuestionGenre, UserGenreQuestionAnswer} from '../../types/question';
 
 type GenreQuestionScreenProps = {
   question: QuestionGenre;
   onAnswer: (question: QuestionGenre, answers: UserGenreQuestionAnswer) => void;
+  renderPlayer: (src: string, playerIndex: number) => JSX.Element;
 };
 
 function GenreQuestionScreen(props: GenreQuestionScreenProps): JSX.Element {
-  const {question, onAnswer} = props;
+  const {question, onAnswer, renderPlayer} = props;
   const {answers, genre} = question;
 
   const [userAnswers, setUserAnswers] = useState([false, false, false, false]);
-  const [activePlayer, setActivePlayer] = useState(0);
 
   return (
     <section className="game game--genre">
       <header className="game__header">
-        <Logo/>
+        <Logo />
 
         <svg xmlns="http://www.w3.org/2000/svg" className="timer" viewBox="0 0 780 780">
-          <circle className="timer__line" cx="390" cy="390" r="370" style={{filter: 'url(#blur)', transform: 'rotate(-90deg) scaleY(-1)', transformOrigin: 'center'}}/>
+          <circle className="timer__line" cx="390" cy="390" r="370"
+                  style={{filter: 'url(#blur)', transform: 'rotate(-90deg) scaleY(-1)', transformOrigin: 'center'}}
+          />
         </svg>
 
         <div className="game__mistakes">
@@ -44,13 +45,16 @@ function GenreQuestionScreen(props: GenreQuestionScreenProps): JSX.Element {
             const keyValue = `${id}-${answer.src}`;
             return (
               <div key={keyValue} className="track">
-                <AudioPlayer
-                  isPlaying={id === activePlayer}
-                  src={answer.src}
-                  onPlayButtonClick = {() => setActivePlayer(activePlayer === id ? -1 : id)}
-                />
+                {renderPlayer(answer.src, id)}
                 <div className="game__answer">
-                  <input className="game__input visually-hidden" type="checkbox" name="answer" value={`answer-${id}`} id={`answer-${id}`} checked={userAnswers[id]} onChange={({target}: ChangeEvent<HTMLInputElement>) => {const value = target.checked; setUserAnswers([...userAnswers.slice(0, id), value, ...userAnswers.slice(id + 1)]);}}/>
+                  <input className="game__input visually-hidden" type="checkbox" name="answer" value={`answer-${id}`}
+                         id={`answer-${id}`}
+                         checked={userAnswers[id]}
+                         onChange={({target}: ChangeEvent<HTMLInputElement>) => {
+                           const value = target.checked;
+                           setUserAnswers([...userAnswers.slice(0, id), value, ...userAnswers.slice(id + 1)]);
+                         }}
+                  />
                   <label className="game__check" htmlFor={`answer-${id}`}>Отметить</label>
                 </div>
               </div>
