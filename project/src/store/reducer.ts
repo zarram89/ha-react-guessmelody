@@ -1,4 +1,3 @@
-
 import {createReducer} from '@reduxjs/toolkit';
 import {incrementStep, resetGame} from './action';
 import {FIRST_GAME_STEP} from '../const';
@@ -20,3 +19,5 @@ const reducer = createReducer(initialState, (builder) => {
       state.step = FIRST_GAME_STEP;
     });
 });
+
+export {reducer};
