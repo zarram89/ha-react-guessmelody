@@ -1,26 +1,35 @@
-import {useState} from 'react';
 import {Navigate} from 'react-router-dom';
-import {AppRoute, GameType, FIRST_GAME_STEP} from '../../const';
+import {useAppDispatch, useAppSelector} from '../../hooks';
+import {incrementStep, checkUserAnswer} from '../../store/action';
+import {AppRoute, GameType, MAX_MISTAKE_COUNT} from '../../const';
 import ArtistQuestionScreen from '../artist-question-screen/artist-question-screen';
 import GenreQuestionScreen from '../genre-question-screen/genre-question-screen';
-import {QuestionArtist, QuestionGenre, Questions} from '../../types/question';
+import Mistakes from '../../components/mistakes/mistakes';
+import {QuestionArtist, QuestionGenre, Question, UserAnswer} from '../../types/question';
 import withAudioPlayer from '../../hocs/with-audio-player/with-audio-player';
 
 const ArtistQuestionScreenWrapped = withAudioPlayer(ArtistQuestionScreen);
 const GenreQuestionScreenWrapped = withAudioPlayer(GenreQuestionScreen);
 
-type GameScreenProps = {
-  questions: Questions;
-};
-
-function GameScreen({questions}: GameScreenProps): JSX.Element {
-  const [step, setStep] = useState(FIRST_GAME_STEP);
+function GameScreen(): JSX.Element {
+  const {step, mistakes, questions} = useAppSelector((state) => state);
 
   const question = questions[step];
+
+  const dispatch = useAppDispatch();
+
+  if (mistakes >= MAX_MISTAKE_COUNT) {
+    return <Navigate to={AppRoute.Lose} />;
+  }
 
   if (step >= questions.length || !question) {
     return <Navigate to={AppRoute.Root} />;
   }
+
+  const onUserAnswer = (questionItem: Question, userAnswer: UserAnswer) => {
+    dispatch(incrementStep());
+    dispatch(checkUserAnswer({question: questionItem, userAnswer}));
+  };
 
   switch (question.type) {
     case GameType.Artist:
@@ -28,16 +37,20 @@ function GameScreen({questions}: GameScreenProps): JSX.Element {
         <ArtistQuestionScreenWrapped
           key={step}
           question={question as QuestionArtist}
-          onAnswer={() => setStep((prevStep) => prevStep + 1)}
-        />
+          onAnswer={onUserAnswer}
+        >
+          <Mistakes count={mistakes} />
+        </ArtistQuestionScreenWrapped>
       );
     case GameType.Genre:
       return (
         <GenreQuestionScreenWrapped
           key={step}
           question={question as QuestionGenre}
-          onAnswer={() => setStep((prevStep) => prevStep + 1)}
-        />
+          onAnswer={onUserAnswer}
+        >
+          <Mistakes count={mistakes} />
+        </GenreQuestionScreenWrapped>
       );
     default:
       return <Navigate to={AppRoute.Root} />;

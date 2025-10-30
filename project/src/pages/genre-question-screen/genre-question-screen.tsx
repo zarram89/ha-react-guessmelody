@@ -1,15 +1,15 @@
-import {useState, FormEvent, ChangeEvent} from 'react';
+import {useState, FormEvent, ChangeEvent, PropsWithChildren} from 'react';
 import Logo from '../../components/logo/logo';
 import {QuestionGenre, UserGenreQuestionAnswer} from '../../types/question';
 
-type GenreQuestionScreenProps = {
+type GenreQuestionScreenProps = PropsWithChildren<{
   question: QuestionGenre;
   onAnswer: (question: QuestionGenre, answers: UserGenreQuestionAnswer) => void;
   renderPlayer: (src: string, playerIndex: number) => JSX.Element;
-};
+}>;
 
 function GenreQuestionScreen(props: GenreQuestionScreenProps): JSX.Element {
-  const {question, onAnswer, renderPlayer} = props;
+  const {question, onAnswer, renderPlayer, children} = props;
   const {answers, genre} = question;
 
   const [userAnswers, setUserAnswers] = useState([false, false, false, false]);
@@ -23,11 +23,7 @@ function GenreQuestionScreen(props: GenreQuestionScreenProps): JSX.Element {
           <circle className="timer__line" cx="390" cy="390" r="370" style={{filter: 'url(#blur)', transform: 'rotate(-90deg) scaleY(-1)', transformOrigin: 'center'}}/>
         </svg>
 
-        <div className="game__mistakes">
-          <div className="wrong"/>
-          <div className="wrong"/>
-          <div className="wrong"/>
-        </div>
+        {children}
       </header>
 
       <section className="game__screen">
